@@ -17,9 +17,9 @@ export interface Store {
     vals: Box<Value>[];
 }
 
-export const isStore = ...;
-export const makeEmptyStore = ...;
-export const theStore: Store = 
+export const isStore = (x: any): x is Store => x.tag === "Store";;
+export const makeEmptyStore = () : Store => ({tag :"Store", vals : makeBox([])});
+export const theStore: Store = makeEmptyStore();
 export const extendStore = (s: Store, val: Value): Store =>
     // Complete
     
@@ -36,10 +36,7 @@ export const setStore = (store: Store, address: number, val: Value): void =>
 // export type Env = EmptyEnv | ExtEnv;
 export type Env = GlobalEnv | ExtEnv;
 
-interface GlobalEnv {
-    tag: "GlobalEnv";
-    vars: Box<string[]>;
-    addresses: Box<number[]>
+9addresses: Box<number[]>
 }
 
 export interface ExtEnv {
