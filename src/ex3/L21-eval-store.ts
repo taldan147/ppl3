@@ -53,8 +53,9 @@ const applyProcedure = (proc: Value, args: Value[]): Result<Value> =>
 
 const applyClosure = (proc: Closure, args: Value[]): Result<Value> => {
     const vars = map((v: VarDecl) => v.var, proc.params);
-    const address_length = unbox(theGlobalEnv.addresses).length
-    const addresses = range(address_length, proc.params.length)
+    map((val : Value) =>extendStore(theStore,val),args) // added each val to store
+    const address_length = unbox(theStore.vals).length
+    const addresses = range(address_length-args.length, address_length)
     const newEnv: ExtEnv = makeExtEnv(vars, addresses, proc.env)
     return evalSequence(proc.body, newEnv);
 }
@@ -76,8 +77,12 @@ const evalSet = (exp: SetExp, env: Env): Result<void> =>
         (applicativeEval(exp.val, env), applyEnv(env, exp.var.var)); // maybe works, maybe not?? 
 
 const evalDef = (def: DefineExp,exps: Exp[], env: Env): Result<Value> => {
-    bind(applicativeEval(def.val, env), (rhs: Value) => makeOk(extendStore(theStore, rhs)));
-    return evalSequence(exps, makeExtEnv([def.var.var], [unbox(theStore.vals).length-1], env));
+    const address = unbox(theStore.vals).length
+    globalEnvAddBinding(def.var.var, address) // at first we extended env instead of define var in global env
+    extendStore(theStore, undefined) // added to store as undefine, to keep the sequence of addresses correct
+    // const extEnv = makeExtEnv([def.var.var], [unbox(theStore.vals).length], env);
+    bind(applicativeEval(def.val, env), (rhs: Value) => makeOk(setStore(theStore,address, rhs)));
+    return evalSequence(exps, theGlobalEnv);
 }
 
 const evalDefineExps = (def: DefineExp, exps: Exp[], env : Env): Result<Value> =>
@@ -100,8 +105,9 @@ const evalLet = (exp: LetExp, env: Env): Result<Value> => {
 
 
     return bind(vals, (vals: Value[]) => {
-        const address_length = unbox(theGlobalEnv.addresses).length
-        const addresses = range(address_length, vals.length)
+        map((val : Value) =>extendStore(theStore,val),vals) // added each val to store
+        const address_length = unbox(theStore.vals).length
+        const addresses = range(address_length-vals.length, address_length) // fixed addressess by theStore and not by global env
         const newEnv = makeExtEnv(vars, addresses, env)
         return evalSequence(exp.body, newEnv);
     })

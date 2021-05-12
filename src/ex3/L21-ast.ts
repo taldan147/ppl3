@@ -33,6 +33,7 @@ import { makeEmptySExp, makeSymbolSExp, SExpValue, makeCompoundSExp, valueToStri
 ;;         |  ( let ( <binding>* ) <cexp>+ )  / LetExp(bindings:Binding[], body:CExp[]))
 ;;         |  ( quote <sexp> )                / LitExp(val:SExp)
 ;;         |  ( <cexp> <cexp>* )              / AppExp(operator:CExp, operands:CExp[]))
+;;         | ( set! <var> <cexp>)             / SetExp(var: varRef, val: CExp)
 ;; <binding>  ::= ( <var> <cexp> )            / Binding(var:VarDecl, val:Cexp)
 ;; <prim-op>  ::= + | - | * | / | < | > | = | not |  eq? | string=?
 ;;                  | cons | car | cdr | list | pair? | list? | number?
@@ -73,9 +74,9 @@ export interface SetExp { tag: "SetExp", var: VarRef; val: CExp; }
 export interface LitExp { tag: "LitExp"; val: SExpValue; }
 
 // To help parser - define a type for reserved key words.
-export type SpecialFormKeyword = "lambda" | "let" | "if";
+export type SpecialFormKeyword = "lambda" | "let" | "if" | "set!";
 const isSpecialFormKeyword = (x: string): x is SpecialFormKeyword =>
-    ["if", "lambda", "let", "quote"].includes(x);
+    ["if", "lambda", "let", "quote", "set!"].includes(x);
 
 /*
     ;; <prim-op>  ::= + | - | * | / | < | > | = | not | and | or | eq? | string=?
@@ -321,5 +322,5 @@ export const unparse = (exp: Parsed): string =>
                                         isLetExp(exp) ? unparseLetExp(exp) :
                                             isDefineExp(exp) ? `(define ${exp.var.var} ${unparse(exp.val)})` :
                                                 isProgram(exp) ? `(L21 ${unparseLExps(exp.exps)})` :
-                                                    isSetExp(exp) ? `` :
+                                                    isSetExp(exp) ? `(set! ${unparse(exp.var)} ${unparse(exp.val)})` :
                                                     exp;

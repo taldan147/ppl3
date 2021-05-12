@@ -72,7 +72,8 @@ export const applyEnv = (env: Env, v: string): Result<number> =>
     applyExtEnv(env, v);
 
 const applyGlobalEnv = (env: GlobalEnv, v: string): Result<number> =>
-    makeOk(unbox(env.addresses)[unbox(env.vars).indexOf(v)]);
+    unbox(env.vars).includes(v) ? makeOk(unbox(env.addresses)[unbox(env.vars).indexOf(v)]):
+    makeFailure("var is not define"); // return failure if var isnt define in env
 
 export const globalEnvAddBinding = (v: string, addr: number): void => {
     setBox(theGlobalEnv.vars, append(v, unbox(theGlobalEnv.vars)));

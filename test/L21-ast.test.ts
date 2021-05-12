@@ -52,9 +52,9 @@ describe('L21 Parser', () => {
         expect(p("(let ((a 1) (b #t)) (if b a (+ a 1)))")).to.satisfy(isOkT(isLetExp));
     });
 
-    // it('parses "set!" expressions', () => {
-    //     expect(p("(set! x (+ 1 2))")).to.satisfy(isOkT(isSetExp));
-    // });
+    it('parses "set!" expressions', () => {
+        expect(p("(set! x (+ 1 2))")).to.satisfy(isOkT(isSetExp));
+    });
 
     describe("Failures", () => {
         it("returns a Failure when parsing a single-token program", () => {
@@ -85,13 +85,13 @@ describe('L21 Parser', () => {
             expect(p('(define 1 y)')).to.satisfy(isFailure);
         });
 
-        // it('returns a Failure for an ill-formed "set!"', () => {
-        //     expect(p("(set!)")).to.satisfy(isFailure);
-        //     expect(p("(set! x)")).to.satisfy(isFailure);
-        //     expect(p("(set! x y z)")).to.satisfy(isFailure);
-        //     expect(p('(set! "1" y)')).to.satisfy(isFailure);
-        //     expect(p('(set! 1 y)')).to.satisfy(isFailure);
-        // });
+        it('returns a Failure for an ill-formed "set!"', () => {
+            expect(p("(set!)")).to.satisfy(isFailure);
+            expect(p("(set! x)")).to.satisfy(isFailure);
+            expect(p("(set! x y z)")).to.satisfy(isFailure);
+            expect(p('(set! "1" y)')).to.satisfy(isFailure);
+            expect(p('(set! 1 y)')).to.satisfy(isFailure);
+        });
 
         it("returns a Failure for an empty CExp", () => {
             expect(p("(+ ())")).to.satisfy(isFailure);
@@ -155,8 +155,8 @@ describe('L21 Unparse', () => {
         expect(roundTrip(let1)).to.deep.equal(makeOk(let1));
     });
 
-    // it('unparses "set!" expressions', () => {
-    //     const set1 = "(set! x (+ 1 2))";
-    //     expect(roundTrip(set1)).to.deep.equal(makeOk(set1));
-    // });
+    it('unparses "set!" expressions', () => {
+        const set1 = "(set! x (+ 1 2))";
+        expect(roundTrip(set1)).to.deep.equal(makeOk(set1));
+    });
 });
